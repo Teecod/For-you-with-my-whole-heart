@@ -1,0 +1,72 @@
+import tkinter as tk
+import time
+import random
+
+class PopupMessage:
+    def __init__(self, master, message, duration):
+        self.master = master
+        self.message = message
+        self.duration = duration
+        self.popup = None
+
+    def show(self):
+        self.popup = tk.Toplevel(self.master)
+        self.popup.geometry("200x100+400+300")
+        self.popup.title("Popup Message")
+        self.popup.config(bg="misty rose")
+        
+        label = tk.Label(self.popup, text=self.message)
+        label.pack(pady=10)
+        
+        hearts = [tk.Label(self.popup, text="❤️", bg="misty rose") for _ in range(10)]
+        for heart in hearts:
+            x = random.randint(20, 180)
+            y = random.randint(20, 80)
+            heart.place(x=x, y=y)
+            self.animate_heart(heart)
+        
+        self.master.after(self.duration, self.popup.destroy)
+
+    def animate_heart(self, heart):
+        y_speed = random.randint(-3, -1)
+        x_speed = random.randint(-1, 1)
+        move_x = random.randint(1, 5)
+        move_y = random.randint(1, 5)
+        self.move_heart(heart, move_x * x_speed, move_y * y_speed)
+        
+    def move_heart(self, heart, x_speed, y_speed):
+        x, y = heart.winfo_x(), heart.winfo_y()
+        if y < 0:
+            heart.place_forget()
+            return
+        heart.place(x=x + x_speed, y=y + y_speed)
+        self.master.after(50, self.move_heart, heart, x_speed, y_speed)
+
+class App:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Popup Messages with Hearts")
+        self.master.geometry("400x300")
+        self.master.config(bg="misty rose")
+        
+        self.popup_messages = [
+            {"message": "Do you know how much I love you?", "duration": 3000},
+            {"message": "I love you more than you can expect, and I'll keep loving you untill all the stars in the universe disappear, untill the sun would lose its sunlight, untill the moon would stop revoling around the earth , untill everything would disappear from this universe. ✨", "duration": 3000},
+            {"message": "You're like the stars and moon that make my night sky look pretty. You're like the clouds that make my sunsets and sunrises look pretty. I'm so grateful to have you in my life that even words are not enough to describe it❤", "duration": 3000}
+        ]
+        
+        self.current_popup_index = 0
+        self.create_popup()
+
+    def create_popup(self):
+        if self.current_popup_index < len(self.popup_messages):
+            message_info = self.popup_messages[self.current_popup_index]
+            popup_message = PopupMessage(self.master, message_info["message"], message_info["duration"])
+            popup_message.show()
+            self.current_popup_index += 1
+            self.master.after(message_info["duration"] + 1000, self.create_popup)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = App(root)
+    root.mainloop()
